@@ -86,11 +86,15 @@
 
 <script>
 const EXAMPLES = [
-  { label:"📋 粘贴示例群聊", text:"王工：李经理，NMX-60 断路器外壳 5000 个，什么时候能给报个价？客户挺急的\n李经理：稍等，我算一下，明天上午给你\n（第二天）\n李经理：王工，NMX-60 外壳 5000 个，单价 3.2，11 月 20 号交，含 13% 税\n王工：行，先安排打样 20 个发过来确认" },
-  { label:"🔍 万博那单到哪了", text:"万博那单到哪了？" },
-  { label:"✏️ 客户改数量", text:"王工：李经理，NMX-60 那批数量改一下，改成 6000 个" },
-  { label:"📊 出今日简报", text:"出今日简报" },
+  { label:"🆕 新建订单", scenario:"new", text:"瑞安精工：轴承座 UC205 120个，12月1号交，单价5.5" },
+  { label:"✏️ 客户改数量", scenario:"update", text:"王工：NMX-60 那批数量改成 6000 个" },
+  { label:"🟡 信息缺失", scenario:"missing", text:"龙湾机械：齿轮箱再走一批（数量和交期都没说）" },
+  { label:"⚠️ 数据冲突", scenario:"conflict", text:"温州机电：法兰盘交期改 11-28（台账记的是 11-25）" },
+  { label:"⛔ 异常拦截", scenario:"abnormal", text:"温州机电：法兰盘数量 -50（多打了负号）" },
+  { label:"🔍 查万博那单", scenario:"query", text:"万博那单到哪了？" },
+  { label:"📊 出今日简报", scenario:"briefing", text:"出今日简报" },
 ];
+let currentScenario = null;
 
 function el(id){ return document.getElementById(id); }
 
@@ -99,7 +103,7 @@ function renderChips(){
   EXAMPLES.forEach(e=>{
     const s = document.createElement("span");
     s.className="chip"; s.textContent=e.label;
-    s.onclick=()=>{ el("input").value=e.text; send(); };
+    s.onclick=()=>{ el("input").value=e.text; currentScenario=e.scenario||null; send(); };
     c.appendChild(s);
   });
 }
@@ -144,10 +148,11 @@ async function send(){
   addMsg("user", text);
   inp.value = "";
   const r = await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({message:text})});
+    body: JSON.stringify({message:text, scenario: currentScenario})});
   const data = await r.json();
   addMsg("bot", data.reply||"（无回复）", data.mode);
   if(data.ledger) renderLedger(data.ledger);
+  currentScenario = null;
 }
 
 async function resetLedger(){
@@ -161,7 +166,7 @@ async function init(){
   renderChips();
   const L = await (await fetch("/api/ledger")).json();
   renderLedger(L);
-  addMsg("bot","我是瓯单通，你的订单协同助手。把业务群聊直接粘贴给我，我帮你：\n📦 提取订单入台账 ｜ 🔍 随口查单进度 ｜ ✏️ 识别客户变更 ｜ 📊 出今日简报","hint");
+  addMsg("bot","我是瓯单通，你的订单协同助手。点上方【示例】按钮，可一键体验：\n🆕 新建 ｜ ✏️ 变更 ｜ 🟡 缺失 ｜ ⚠️ 冲突 ｜ ⛔ 异常 ｜ 🔍 查单 ｜ 📊 简报","hint");
 }
 init();
 </script>

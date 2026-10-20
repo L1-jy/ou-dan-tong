@@ -29,3 +29,46 @@ SCENARIO3_MOCK = [
 MISSING_TRAP_MOCK = [
     {"type": "order", "customer": "", "product": ""},
 ]
+
+# —— 网页体验增强：五类场景示例（覆盖模块二 缺失/冲突/异常/更新/新建）——
+# 演示启动时会先 seed 以下在途单，使冲突/更新/异常场景能命中 existing（模块二可见）。
+SEED_MOCK = [
+    {"type": "order", "customer": "温州机电", "product": "法兰盘", "spec": "DN50",
+     "qty": 300, "unit_price": "8.0", "delivery_date": "2026-11-25", "status_hint": "沟通中",
+     "sample_flag": "无", "source_excerpt": "温州机电 法兰盘 DN50 300个 11月25号交"},
+    {"type": "order", "customer": "王工（XX电气）", "product": "NMX-60 断路器外壳", "spec": "",
+     "qty": 5000, "unit_price": "3.2", "delivery_date": "2026-11-20", "status_hint": "已报价",
+     "sample_flag": "打样", "source_excerpt": "王工 NMX-60 外壳 5000个 单价3.2 11月20号交"},
+]
+
+# 新建：全新客户+产品，字段齐全 → 正常建单
+SCENARIO_NEW_MOCK = [
+    {"type": "order", "customer": "瑞安精工", "product": "轴承座", "spec": "UC205",
+     "qty": 120, "unit_price": "5.5", "delivery_date": "2026-12-01", "status_hint": "沟通中",
+     "sample_flag": "无", "source_excerpt": "瑞安精工 轴承座 UC205 120个 12月1号交"},
+]
+
+# 更新：与在途单同客户+产品，且含变更动词「改成」→ 正常更新（不冲突）
+SCENARIO_UPDATE_MOCK = [
+    {"type": "order", "customer": "王工（XX电气）", "product": "NMX-60 断路器外壳",
+     "qty": 6000, "source_excerpt": "NMX-60 那批数量改成 6000 个"},
+]
+
+# 缺失：新客户+产品，但数量/交期为空 → 登记占位单（模块二·7）
+SCENARIO_MISSING_MOCK = [
+    {"type": "order", "customer": "龙湾机械", "product": "齿轮箱", "spec": "",
+     "qty": None, "unit_price": "待报价", "delivery_date": None, "status_hint": "沟通中",
+     "sample_flag": "无", "source_excerpt": "龙湾机械 齿轮箱 再走一批（数量和交期都没说）"},
+]
+
+# 冲突：与在途单同客户+产品，交期矛盾且无变更动词 → 不覆盖，待人工确认（模块二·8）
+SCENARIO_CONFLICT_MOCK = [
+    {"type": "order", "customer": "温州机电", "product": "法兰盘",
+     "delivery_date": "2026-11-28", "source_excerpt": "温州机电 法兰盘 交期 11-28"},
+]
+
+# 异常：数量为负数 → 直接拦截，不写入（模块二·9）
+SCENARIO_ABNORMAL_MOCK = [
+    {"type": "order", "customer": "温州机电", "product": "法兰盘",
+     "qty": -50, "source_excerpt": "法兰盘 数量 -50（手滑多打了负号）"},
+]
