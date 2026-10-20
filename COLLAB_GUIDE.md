@@ -1,39 +1,37 @@
 # 协作指南（队员必读）
 
-> 我们用 **WorkBuddy + AI** 开发「瓯单通」企业智能体，代码统一放在一个 Gitee 仓库。
-> 你**不需要学 Git 命令**——WorkBuddy 帮你做 clone / 提交 / 推送。你只需要在 WorkBuddy 里"接仓库 + 报身份 + 干活"，最后等队长审核合并。
+> 我们用 **WorkBuddy + AI** 开发「瓯单通」企业智能体，代码统一放在一个 **GitHub 仓库**。
+> 你**不需要学 Git 命令**——WorkBuddy 的 GitHub 连接器帮你做 clone / 提交 / 推送。你只需要在 WorkBuddy 里"连仓库 + 报身份 + 干活"，最后等队长审核合并。
 
 ---
 
-## 一、队长（队友A）先做：建仓库 + 放资料
+## 一、仓库信息（直接用）
 
-1. Gitee 新建**空仓库**（如 `ou-dan-tong`），不要勾选「初始化 README / .gitignore」。
-2. 把本机项目（含分工材料）推上去作为初始版本（命令见第五节）。
-3. 仓库「设置 → 分支管理 / 保护分支」把 **`master` 设为受保护（禁止直接推送）**。
-4. 把**仓库地址**发给每位队友。
-
-> 队友连的是这个仓库；仓库必须先把现有资料 push 进去，他们才能读分工文档、认任务。
+- **仓库地址**：`https://github.com/Ruan1027/ou-dan-tong`
+- **默认分支**：`master`（已设为**受保护分支**，禁止直接推送）
+- **队长 GitHub 账号**：`Ruan1027`
+- 队友各自开分支 `dev-b` / `dev-c` / `dev-d` 开发，完成后提 PR，由队长审核合并进 `master`。
 
 ---
 
 ## 二、你（队友 B / C / D）要做的
 
-1. 注册 Gitee 账号，生成**私人令牌 token**（设置 → 私人令牌，勾 `repo` 权限）。
-2. 打开**你自己的 WorkBuddy**，让它连接队长给的仓库地址（WorkBuddy 会自动 clone，你不用敲命令）。
+1. 注册一个 **GitHub 账号**（没有就注册，免费）。
+2. 打开**你自己的 WorkBuddy**，连接上面的仓库地址——WorkBuddy 会用 GitHub 连接器自动 clone，你不用敲任何命令。
 3. 在 WorkBuddy 里发一段**开场白**（照模板改名字即可）：
 
    > 我是队员B。请先读取本仓库 `01_方案与规划/分工安排.md` 和 `01_方案与规划/开发任务清单.md`，确认我负责的模块（模块一 模拟数据构建 + 模块五 测试验证），按清单开始执行我的任务。**只修改我模块相关的文件**，不要动别人模块。完成后提交并推送到我自己名为 `dev-b` 的分支，并发起合并请求（PR）等待队长审核。
 
    - 队员 C / D 把上面「B / 模块一+模块五 / dev-b」换成自己的身份即可（见分工安排）。
 4. WorkBuddy 会：读文档 → 认出你的任务 → 开始干 → 推到你的分支 → 提 PR。
-5. 等队长在 Gitee 上审核合并。**合并动作不用你做**。
+5. 等队长在 GitHub 上审核合并。**合并动作不用你做**。
 
 ---
 
 ## 三、队长审核（你要的闸门）
 
 - 队友的推送都进**各自分支 / PR**，**不直接进 `master`**。
-- 队长在 Gitee 看 diff：没问题就合并到 `master`；有问题打回，让队友改完重提。
+- 队长在 GitHub 看 diff：没问题就合并到 `master`；有问题打回，让队友改完重提。
 - 这就是「先审核，通过才加入仓库」。
 
 ---
@@ -42,30 +40,29 @@
 
 1. 每人**只改自己模块**的文件，别动别人模块。
 2. 推之前让 WorkBuddy 先 `pull` 最新（WorkBuddy 会处理），避免覆盖别人。
-3. Gitee **token 只配在你自己的 WorkBuddy**，别发给任何人（包括队长）。
+3. 你的 GitHub 账号只连**你自己**的 WorkBuddy，别把账号借给别人、也别用队长的账号。
 4. 开场白里写清「只改我模块相关文件」，防止 WorkBuddy 改歪。
-5. 不会的问队长，别自己改仓库设置。
+5. 不会的问队长，别自己改仓库设置 / 分支保护。
 
 ---
 
-## 五、队长专属：首次推送命令（做一次）
+## 五、队长专属：本地重推命令（通常不用，仅在本地有改动需补推时）
 
-在 WorkBuddy 终端进入本项目工作区执行：
+仓库已建好并推送了初始资料，一般无需重推。若队长在本地改了文件要补推：
 
 ```
-git init
-git remote add origin https://gitee.com/你的用户名/ou-dan-tong.git
-git add .
-git commit -m "init: 瓯单通初始资料（含分工与任务清单）"
-git push -u origin master
+cd "D:/AIData/work Buddy/碎片化沟通中的订单与任务协同"
+git add -A
+git commit -m "更新说明"
+git push origin master
 ```
 
-- 首次推送弹框：用户名填你的 Gitee 账号，密码填**私人令牌 token**（不是登录密码）。
-- 若默认分支是 `main` 而非 `master`，先 `git branch -m main` 再 push。
+- 推送走 WorkBuddy 已连的 GitHub 连接器，弹框用你自己的 GitHub 账号授权即可。
+- 若默认分支是 `main` 而非 `master`，先 `git branch -m main master` 再 push。
 
 ---
 
 ## 六、⚠️ 路径说明（队长看）
 
 - **真正的项目在 WorkBuddy 工作区**：`D:/AIData/work Buddy/碎片化沟通中的订单与任务协同/`，git 从这里初始化、推送。
-- 旧的 `D:/projects/enterprise-agent` 是**别的通用骨架，不是本项目**，别把它当仓库推送；如已推到 Gitee，建议新建 `ou-dan-tong` 仓库，旧仓库停用。
+- 旧的 `D:/projects/enterprise-agent` 是**别的通用骨架，不是本项目**，别把它当仓库推送；本项目仓库即上面的 GitHub `ou-dan-tong`。
