@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>瓯单通 · 模块一 模拟数据预览</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:#f5f7fa; color:#1f2937; }
+  .wrap { max-width:1180px; margin:0 auto; padding:20px 16px 60px; }
+  header { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:18px 20px;
+          background:linear-gradient(120deg,#0f2a43,#144572); color:#fff; border-radius:12px; margin-bottom:16px; }
+  header h1 { font-size:20px; letter-spacing:1px; }
+  header .sub { font-size:12px; opacity:.8; }
+  header .stats { margin-left:auto; display:flex; gap:10px; }
+  .stat { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); padding:6px 12px; border-radius:20px; font-size:12px; }
+  .legend { display:flex; gap:8px; flex-wrap:wrap; margin:10px 2px 14px; }
+  .lg { font-size:12px; padding:4px 10px; border-radius:16px; border:1px solid #d7dee8; background:#fff; color:#334155; }
+  .lg i { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; }
+  .card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; margin-bottom:16px; overflow:hidden;
+          box-shadow:0 1px 3px rgba(15,42,67,.06); }
+  .card-head { display:flex; align-items:center; gap:10px; padding:10px 14px; background:#fbfcfe;
+               border-bottom:1px solid #eef2f7; flex-wrap:wrap; }
+  .mark { width:26px; height:26px; border-radius:8px; color:#fff; font-weight:700; font-size:13px;
+          display:flex; align-items:center; justify-content:center; }
+  .sid { font-weight:800; font-size:13px; color:#0f2a43; font-family:Consolas,monospace; }
+  .stype { font-weight:700; font-size:13px; }
+  .title { font-weight:600; font-size:13px; color:#334155; }
+  .vt { font-size:11px; font-weight:700; border:1px solid; border-radius:12px; padding:2px 8px; }
+  .group-name { font-size:11px; color:#94a3b8; }
+  .cnt { font-size:11px; color:#94a3b8; margin-left:auto; }
+  .card-body { display:grid; grid-template-columns:1.25fr 1fr; gap:0; }
+  .chat { padding:14px 16px; background:#f8fafc; }
+  .msg { max-width:86%; margin-bottom:10px; }
+  .msg .who { font-weight:700; font-size:12px; margin-bottom:1px; }
+  .msg .tt { font-size:10px; color:#94a3b8; margin-bottom:3px; }
+  .msg .text { font-size:13px; line-height:1.55; color:#1e293b; }
+  .msg.me .text { background:#e8f1fd; border:1px solid #cfe2f7; border-radius:10px 10px 10px 2px; padding:8px 11px; }
+  .msg.opp .text { background:#fff; border:1px solid #e2e8f0; border-radius:10px 10px 2px 10px; padding:8px 11px; }
+  .msg.me { margin-left:auto; } .msg.me .who, .msg.me .tt { text-align:right; }
+  .expect { padding:14px 16px; border-left:1px solid #eef2f7; }
+  .expect h3 { font-size:12px; color:#0f2a43; margin-bottom:10px; letter-spacing:.5px; }
+  .exp-tbl { width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:10px; }
+  .exp-tbl td { padding:5px 8px; border-bottom:1px dashed #eef2f7; vertical-align:top; }
+  .exp-tbl .k { color:#64748b; width:88px; font-weight:600; }
+  .exp-tbl .v { color:#0f172a; }
+  .notes { background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:8px 10px; font-size:11.5px; }
+  .notes-h { font-weight:700; color:#b45309; margin-right:6px; }
+  .notes ul { margin:4px 0 0 16px; color:#78350f; line-height:1.6; }
+  footer { text-align:center; font-size:11px; color:#94a3b8; margin-top:20px; line-height:1.7; }
+  @media (max-width:760px) { .card-body { grid-template-columns:1fr; } .expect { border-left:none; border-top:1px solid #eef2f7; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>瓯单通 · 模块一 模拟数据预览</h1>
+    <div class="sub">口语化群聊数据集（契约1 格式）· 右侧为每组预期抽取结果 / 校验目标</div></div>
+    <div class="stats">
+      <span class="stat">共 11 组场景</span>
+      <span class="stat">共 37 条消息</span>
+      <span class="stat">数据版本 1.0</span>
+    </div>
+  </header>
+  <div class="legend">
+    <span class="lg"><i style="background:#1d7ad9"></i>新建订单</span>
+    <span class="lg"><i style="background:#8a6de9"></i>多次迭代更新</span>
+    <span class="lg"><i style="background:#d97706"></i>缺失信息</span>
+    <span class="lg"><i style="background:#dc2626"></i>矛盾冲突</span>
+    <span class="lg"><i style="background:#b91c1c"></i>明显异常</span>
+    <span class="lg"><i style="background:#059669"></i>动态演进</span>
+    <span class="lg" style="margin-left:auto;color:#64748b">客户发言 · 我方发言</span>
+  </div>
+  
+<div class="card" data-sid="S1-G1">
+  <div class="card-head">
+    <span class="mark" style="background:#1d7ad9">新</span>
+    <span class="sid">S1-G1</span>
+    <span class="stype" style="color:#1d7ad9">新建订单</span>
+    <span class="title">法兰盘下单（要素齐全）</span>
+    <span class="vt" style="border-color:#059669;color:#059669">期待·ok</span>
+    <span class="group-name">永嘉精密机械对接群</span>
+    <span class="cnt">3 条</span>
+  </div>
+  <div class="card-body">
+    <div class="chat"><div class="msg opp"><div class="who" style="color:#1d7ad9">王总</div><div class="tt">2026-10-20 09:12</div><div class="text">小陈，304 法兰盘 DN80 的 250 个，月底前能出吗</div></div>
+<div class="msg me"><div class="who" style="color:#1d7ad9">小陈</div><div class="tt">2026-10-20 09:20</div><div class="text">王总，能出，我记下了：法兰 DN80 250 件，交期 28 号，价格还是上次那个 18.5</div></div>
+<div class="msg opp"><div class="who" style="color:#1d7ad9">王总</div><div class="tt">2026-10-20 09:26</div><div class="text">行，就这么定，别给我排到月底去</div></div></div>
+    <div class="expect"><table class="exp-tbl">
+<tr><td class='k'>entity</td><td class='v'>订单</td></tr>
+<tr><td class='k'>entity_key_hint</td><td class='v'>王总（永嘉××精密机械）+ 304法兰盘DN80</td></tr>
+<tr><td class='k'>fields</td><td class='v'>{'数量': '250', '单价': '18.5', '交期': '2026-10-28', '状态': '已确认'}</td></tr>
+</table>
+<div class="notes"><span class="notes-h">设计陷阱</span><ul><li>产品别称：'法兰' 与正式名 '304法兰盘DN80' 并存，考验别称归一</li><li>要素齐全：客户/产品/规格/数量/单价/交期 6 项完整</li></ul></div></div>
+  </div>
+</div>
+<div class="card" data-sid="S1-G2">
+  <div class="card-head">
+    <span class="mark" style="background:#1d7ad9">新</span>
+    <span class="sid">S1-G2</span>
+    <span class="stype" style="color:#1d7ad9">新建订单</span>
+    <span class="title">断路器下单（数量+口语交期）</span>
+    <span class="vt" style="border-color:#059669;color:#059669">期待·ok</span>
+    <span class="group-name">瓯越五金贸易对接群</span>
+    <span class="cnt">3 条</span>
+  </div>
+  <div class="card-body">
+    <div class="chat"><div class="msg opp"><div class="who" style="color:#1d7ad9">李姐</div><div class="tt">2026-10-20 10:03</div><div class="text">小陈，DZ47-63 三相的 50 个，下周发，先报个价</div></div>
+<div class="msg me"><div class="who" style="color:#1d7ad9">小陈</div><div class="tt">2026-10-20 10:11</div><div class="text">李姐，DZ47-63 三相 50 个，单价 26，下周二 27 号发货到瓯越仓库哈</div></div>
+<div class="msg opp"><div class="who" style="color:#1d7ad9">李姐</div><div class="tt">2026-10-20 10:15</div><div class="text">可以，就这么办</div></div></div>
+    <div class="expect"><table class="exp-tbl">
+<tr><td class='k'>entity</td><td class='v'>订单</td></tr>
+<tr><td class='k'>entity_key_hint</td><td class='v'>李姐（瓯越五金贸易）+ DZ47-63 三相断路器</td></tr>
+<tr><td class='k'>fields</td><td class='v'>{'数量': '50', '单价': '26', '交期': '2026-10-27', '状态': '已确认'}</td></tr>
+</table>
+<div class="notes"><span class="notes-h">设计陷阱</span><ul><li>口语交期'下周'需要近似换算，最终以业务员确认的 27 号为准</li><li>客户名'李姐'为常用口语，全称'瓯越五金贸易'藏在群名/地址里</li></ul></div></div>
+  </div>
+</div>
+<div class="card" data-sid="S2-G1">
+  <div class="card-head">
+    <span class="mark" style="background:#8a6de9">改</span>
+    <span class="sid">S2-G1</span>
+    <span class="stype" style="color:#8a6de9">多次迭代更新</span>
+    <span class="title">法兰盘单 数量与交期变更</span>
+    <span class="vt" style="border-color:#059669;color:#059669">期待·ok</span>
+    <span class="group-name">永嘉精密机械对接群</span>
+    <span class="cnt">4 条</span>
+  </div>
+  <div class="card-body">
+    <div class="chat"><div class="msg opp"><div class="who" style="color:#8a6de9">王总</div><div class="tt">2026-10-20 14:02</div><div class="text">小陈，法兰那单数量加 50，凑 300</div></div>
+<div class="msg me"><div class="who" style="color:#8a6de9">小陈</div><div class="tt">2026-10-20 14:10</div><div class="text">收到，法兰 250→300 件</div></div>
+<div class="msg opp"><div class="who" style="color:#8a6de9">王总</div><div class="tt">2026-10-20 14:12</div><div class="text">交期也赶下，28 号太晚了，24 号周五给我</div></div>
+<div class="msg me"><div class="who" style="color:#8a6de9">小陈</div><div class="tt">2026-10-20 14:18</div><div class="text">好的，交期改 10-24，我跟车间说下优先级</div></div></div>
+    <div class="expect"><table class="exp-tbl">
+<tr><td class='k'>entity</td><td class='v'>订单</td></tr>
+<tr><td class='k'>entity_key_hint</td><td class='v'>复用 S1-G1 实体</td></tr>
+<tr><td class='k'>fields</td><td class='v'>{'数量': '300', '交期': '2026-10-24'}</td></tr>
+<tr><td class='k'>change_log</td><td class='v'>['数量 250→300', '交期 10-28→10-24']</td></tr>
+</table>
+<div class="notes"><span class="notes-h">设计陷阱</span><ul><li>同单两次变更：数量 250→300、交期 10-28→10-24</li><li>必须命中已有单（S1-G1 主键：王总+法兰盘），不得新建</li></ul></div></div>
+  </div>
+</div>
+<div class="card" data-sid="S2-G2">
+  <div class="card-head">
+    <span class="mark" style="background:#8a6de9">改</span>
+    <span class="sid">S2-G2</span>
+    <span class="stype" style="color:#8a6de9">多次迭代更新</span>
+    <span class="title">断路器单 数量两改+交期提前</span>
+    <span class="vt" style="border-color:#059669;color:#059669">期待·ok</span>
+    <span class="group-name">瓯越五金贸易对接群</span>
+    <span class="cnt">5 条</span>
+  </div>
+  <div class="card-body">
+    <div class="chat"><div class="msg opp"><div class="who" style="color:#8a6de9">李姐</div><div class="tt">2026-10-20 15:30</div><div class="text">小陈，DZ47 那个加到 80 个</div></div>
+<div class="msg me"><div class="who" style="color:#8a6de9">小陈</div><div class="tt">2026-10-20 15:34</div><div class="text">收到，50→80</div></div>
+<div class="msg opp"><div class="who" style="color:#8a6de9">李姐</div><div class="tt">2026-10-20 16:02</div><div class="text">算了还是 65 个，客户临时砍了，别做多</div></div>
+<div class="msg me"><div class="who" style="color:#8a6de9">小陈</div><div class="tt">2026-10-20 16:08</div><div class="text">行，按 65，交期还是 27 号？</div></div>
+<div class="msg opp"><div class="who" style="color:#8a6de9">李姐</div><div class="tt">2026-10-20 16:20</div><div class="text">改周五 24 号，客户催得急</div></div></div>
+    <div class="expect"><table class="exp-tbl">
+<tr><td class='k'>entity</td><td class='v'>订单</td></tr>
+<tr><td class='k'>entity_key_hint</td><td class='v'>复用 S1-G2 实体</td></tr>
+<tr><td class='k'>fields</td><td class='v'>{'数量': '65', '交期': '2026-10-24'}</td></tr>
+<tr><td class='k'>change_log</td><td class='v'>['数量 50→80', '数量 80→65', '交期 10-27→10-24']</td></tr>
+</table>
+<div class="notes"><span class="notes-h">设计陷阱</span><ul><li>数量 50→80→65（先增后减），交期 27→24，履历应 3 条</li><li>'还是 65 个'为口语数量表达，需正确抽取 65 而非多加一名</li></ul></div></div>
+  </div>
+</div>
+<div class="card" data-sid="S3-G1">
+  <div class="card-head">
+    <span class="mark" style="background:#d97706">缺</span>
+    <span class="sid">S3-G1</span>
+    <span class="stype" style="color:#d97706">缺失信息</span>
+    <span class="title">法兰盘补排单（缺交期、单号歧义）</span>
+    <span class="vt" style="border-color:#d97706;color:#d97706">期待·missing</span>
+    <span class="group-name">永嘉精密机械对接群</span>
+    <span class="cnt">2 条</span>
+  </div>
+  <div class="card-body">
+    <div class="chat"><div class="msg opp"><div class="who" style="color:#d97706">王总</div><div class="tt">2026-10-21 09:05</div><div class="text">小陈，法兰那批的货再帮我排上一批，我这边急</div></div>
+<div class="msg me"><div class="who" style="color:#d97706">小陈</div><div class="tt">2026-10-21 09:14</div><div class="text">王总，您说的是法兰 DN80 那单加量吗？加多少个、交期什么时候？我跟车间好排</div></div></div>
+    <div class="expect"><table class="exp-tbl">
+<tr><td class='k'>entity</td><td class='v'>订单</td></tr>
+<tr><td class='k'>entity_key_hint</td><td class='v'>疑似复用 S1-G1，但信息不足</td></tr>
+<tr><td class='k'>missing</td><td class='v'>['数量', '交期', '是否改单']</td></tr>
+</table>
+<div class="notes"><span class="notes-h">设计陷阱</span><ul><li>'那批''加一批'指向不明：是 S1-G1 加量还是新单？缺数量、缺交期</li><li>正确行为=缺失追问（missing），不得自行假设数量入库</li></ul></div></div>
+  </div>
+</div>
+<div class="card" data-sid="S3-G2">
+  <div class="card-head">
+    <span class="mark" style="background:#d97706">缺</span>
+    <span class="sid">S3-G2</span>
+    <span class="stype" style="color:#d97706">缺失信息</span>
+    <span class="title">NMX-60 再走一批（仅产品名）</span>
+    <span class="vt" style="border-color:#d97706;color:#d97706">期待·missing</span>
+    <span class="group-name">瓯越五金贸易对接群</span>
+    <span class="cnt">2 条</span>
+  </div>
+  <div class="card-body">
+    <div class="chat"><div class="msg opp"><div class="who" style="color:#d97706">李姐</div><div class="tt">2026-10-21 10:40</div><div class="text">小陈，NMX-60 再给我走一批</div></div>
+<div class="msg me"><div class="who" style="color:#d97706">小陈</div><div class="tt">2026-10-21 10:46</div><div class="text">李姐，这批是新单还是补之前的？数量多少？</div></div></div>
+    <div class="expect"><table class="exp-tbl">
+<tr><td class='k'>entity</td><td class='v'>订单</td></tr>
+<tr><td class='k'>entity_key_hint</td><td class='v'>NMX-60（新实体，与既有 DZ47 单无关）</td></tr>
+<tr><td class='k'>missing</td><td class='v'>['数量', '意向（新建 or 补单）']</td></tr>
+</table>
+<div class="notes"><span class="notes-h">设计陷阱</span><ul><li>只说产品名'NMX-60'，缺数量；并且是新建还是补单（S1-G2 是 DZ47，不匹配）意图不明</li><li>正确行为=缺失追问</li></ul></div></div>
+  </div>
+</div>
+<div class="card" data-sid="S4-G1">
+  <div class="card-head">
+    <span class="mark" style="background:#dc2626">冲</span>
+    <span class="sid">S4-G1</span>
+    <span class="stype" style="color:#dc2626">矛盾冲突</span>
+    <span class="title">法兰盘数量 300 vs 280 打架</span>
+    <span class="vt" style="border-color:#dc2626;color:#dc2626">期待·conflict</span>
+    <span class="group-name">永嘉精密机械对接群</span>
+    <span class="cnt">3 条</span>
+  </div>
+  <div class="card-body">
+    <div class="chat"><div class="msg opp"><div class="who" style="color:#dc2626">王总</div><div class="tt">2026-10-21 11:20</div><div class="text">小陈，法兰那单 28 号前我给你也说下，凑 300 个一起做</div></div>
+<div class="msg me"><div class="who" style="color:#dc2626">老板娘</div><div class="tt">2026-10-21 11:35</div><div class="text">小陈，王总那边我早上记的是 280 个，你怎么跟车间说 300？核实下，别做错</div></div>
+<div class="msg me"><div class="who" style="color:#dc2626">小陈</div><div class="tt">2026-10-21 11:50</div><div class="text">我这边记录是 300，王总 14 号改的，我再跟他确认一次并同步大家</div></div></div>
+    <div class="expect"><table class="exp-tbl">
+<tr><td class='k'>entity</td><td class='v'>订单</td></tr>
+<tr><td class='k'>entity_key_hint</td><td class='v'>复用 S1-G1/S2-G1 实体</td></tr>
+<tr><td class='k'>conflict</td><td class='v'>{'字段': '数量', '口径A': '300', '口径B': '280'}</td></tr>
+</table>
+<div class="notes"><span class="notes-h">设计陷阱</span><ul><li>同一单数量出现 300（王总）与 280（老板娘）两个口径，必须冲突标红而非自动覆盖</li><li>期待最终人工确认后落定，冲突期间不写台账（或标 pending）</li></ul></div></div>
+  </div>
+</div>
+<div class="card" data-sid="S4-G2">
+  <div class="card-head">
+    <span class="mark" style="background:#dc2626">冲</span>
+    <span class="sid">S4-G2</span>
+    <span class="stype" style="color:#dc2626">矛盾冲突</span>
+    <span class="title">交期 25 号 vs 28 号冲突</span>
+    <span class="vt" style="border-color:#dc2626;color:#dc2626">期待·conflict</span>
+    <span class="group-name">车间排产群</span>
+    <span class="cnt">4 条</span>
+  </div>
+  <div class="card-body">
+    <div class="chat"><div class="msg me"><div class="who" style="color:#dc2626">小陈</div><div class="tt">2026-10-21 13:05</div><div class="text">大家注意，DZ47-63 那单跟客户说好 25 号出货，车间排一下</div></div>
+<div class="msg me"><div class="who" style="color:#dc2626">陈工</div><div class="tt">2026-10-21 13:22</div><div class="text">25 号做不出来，材料后天到，最快 28 号，你跟客户说说</div></div>
+<div class="msg me"><div class="who" style="color:#dc2626">老周</div><div class="tt">2026-10-21 13:30</div><div class="text">仓库这边 29 号能齐，供参考</div></div>
+<div class="msg me"><div class="who" style="color:#dc2626">小陈</div><div class="tt">2026-10-21 13:41</div><div class="text">我再去跟客户协商，交期先按 28 号备着</div></div></div>
+    <div class="expect"><table class="exp-tbl">
+<tr><td class='k'>entity</td><td class='v'>订单</td></tr>
+<tr><td class='k'>entity_key_hint</td><td class='v'>复用 S1-G2/S2-G2 实体（DZ47-63）</td></tr>
+<tr><td class='k'>conflict</td><td class='v'>{'字段': '交期', '口径A': '10-25', '口径B': '10-28', '口径C': '10-29'}</td></tr>
+</table>
+<div class="notes"><span class="notes-h">设计陷阱</span><ul><li>对客承诺 25 号 vs 车间产能 28 号 vs 仓库 29 号，三方口径冲突</li><li>正确行为=冲突标红，交期待确认后再覆盖</li></ul></div></div>
+  </div>
+</div>
+<div class="card" data-sid="S5-G1">
+  <div class="card-head">
+    <span class="mark" style="background:#b91c1c">异</span>
+    <span class="sid">S5-G1</span>
+    <span class="stype" style="color:#b91c1c">明显异常</span>
+    <span class="title">数量改 -300（负数，疑似笔误）</span>
+    <span class="vt" style="border-color:#b91c1c;color:#b91c1c">期待·abnormal</span>
+    <span class="group-name">瓯越五金贸易对接群</span>
+    <span class="cnt">2 条</span>
+  </div>
+  <div class="card-body">
+    <div class="chat"><div class="msg opp"><div class="who" style="color:#b91c1c">李姐</div><div class="tt">2026-10-21 15:00</div><div class="text">小陈，DZ47 那个数量给我改成 -300</div></div>
+<div class="msg me"><div class="who" style="color:#b91c1c">小陈</div><div class="tt">2026-10-21 15:08</div><div class="text">李姐，数量改成负数系统记不了，您是打算减 300 还是取消？我按您的意思记录</div></div></div>
+    <div class="expect"><table class="exp-tbl">
+<tr><td class='k'>entity</td><td class='v'>订单</td></tr>
+<tr><td class='k'>entity_key_hint</td><td class='v'>复用 S1-G2/S2-G2 实体</td></tr>
+<tr><td class='k'>abnormal</td><td class='v'>{'字段': '数量', '值': '-300', '原因': '负数量'}</td></tr>
+</table>
+<div class="notes"><span class="notes-h">设计陷阱</span><ul><li>'-300'为明显异常负数量，正常业务不可能</li><li>正确行为=异常拦截并反问意图（减量 or 取消），不自动写入</li></ul></div></div>
+  </div>
+</div>
+<div class="card" data-sid="S5-G2">
+  <div class="card-head">
+    <span class="mark" style="background:#b91c1c">异</span>
+    <span class="sid">S5-G2</span>
+    <span class="stype" style="color:#b91c1c">明显异常</span>
+    <span class="title">交期倒挂（10-19 早于下单日）</span>
+    <span class="vt" style="border-color:#b91c1c;color:#b91c1c">期待·abnormal</span>
+    <span class="group-name">车间排产群</span>
+    <span class="cnt">3 条</span>
+  </div>
+  <div class="card-body">
+    <div class="chat"><div class="msg me"><div class="who" style="color:#b91c1c">陈工</div><div class="tt">2026-10-21 16:10</div><div class="text">小陈，法兰那单你是不是写错了，交期给我写 10-19，今天都 21 号了</div></div>
+<div class="msg me"><div class="who" style="color:#b91c1c">老周</div><div class="tt">2026-10-21 16:15</div><div class="text">对，19 号都过去了，肯定不对</div></div>
+<div class="msg me"><div class="who" style="color:#b91c1c">小陈</div><div class="tt">2026-10-21 16:22</div><div class="text">我手滑写错了，实际是 24 号，我改回来</div></div></div>
+    <div class="expect"><table class="exp-tbl">
+<tr><td class='k'>entity</td><td class='v'>订单</td></tr>
+<tr><td class='k'>entity_key_hint</td><td class='v'>复用 S1-G1/S2-G1 实体</td></tr>
+<tr><td class='k'>abnormal</td><td class='v'>{'字段': '交期', '值': '2026-10-19', '原因': '早于下单日/当天'}</td></tr>
+</table>
+<div class="notes"><span class="notes-h">设计陷阱</span><ul><li>交期早于当天（倒挂）触发异常拦截，提示录入错误</li><li>随后人工纠正为 10-24，纠正后正常入库</li></ul></div></div>
+  </div>
+</div>
+<div class="card" data-sid="S6-E1">
+  <div class="card-head">
+    <span class="mark" style="background:#059669">演</span>
+    <span class="sid">S6-E1</span>
+    <span class="stype" style="color:#059669">动态演进</span>
+    <span class="title">电机壳 Y2-132 订单 3 轮变更长链</span>
+    <span class="vt" style="border-color:#059669;color:#059669">期待·ok</span>
+    <span class="group-name">永嘉精密机械对接群</span>
+    <span class="cnt">6 条</span>
+  </div>
+  <div class="card-body">
+    <div class="chat"><div class="msg opp"><div class="who" style="color:#059669">王总</div><div class="tt">2026-10-20 09:40</div><div class="text">小陈，电机壳 Y2-132 的 400 个，11 月 9 号能交吗</div></div>
+<div class="msg me"><div class="who" style="color:#059669">小陈</div><div class="tt">2026-10-20 09:55</div><div class="text">王总，Y2-132 电机壳 400 个，11-09 交，没问题，给您排上</div></div>
+<div class="msg opp"><div class="who" style="color:#059669">王总</div><div class="tt">2026-10-20 17:20</div><div class="text">小陈，电机壳改 500 个，交期最好赶 11 月 5 号，客户那边催</div></div>
+<div class="msg me"><div class="who" style="color:#059669">小陈</div><div class="tt">2026-10-21 09:02</div><div class="text">王总，改 500 收到；不过 11-05 产能不够，车间建议分两批：05 号先出 300，12 号出 200</div></div>
+<div class="msg me"><div class="who" style="color:#059669">老板娘</div><div class="tt">2026-10-21 09:30</div><div class="text">500 个全要，分两批可以：第一批 11-08 出 300，第二批 11-15 出 200，跟王总确认下</div></div>
+<div class="msg opp"><div class="who" style="color:#059669">王总</div><div class="tt">2026-10-21 09:48</div><div class="text">可以，按老板娘说的来，11-08 一批 300，11-15 一批 200</div></div></div>
+    <div class="expect"><table class="exp-tbl">
+<tr><td class='k'>entity</td><td class='v'>订单</td></tr>
+<tr><td class='k'>entity_key_hint</td><td class='v'>王总（永嘉××精密机械）+ 电机壳 Y2-132</td></tr>
+<tr><td class='k'>fields</td><td class='v'>{'数量': '500', '交期': '两批：11-08（300 件）/ 11-15（200 件）', '状态': '已确认'}</td></tr>
+<tr><td class='k'>change_log</td><td class='v'>['数量 400→500', '交期 11-09→11-05（提前）', '交期方案 → 分批 11-08(300)/11-15(200)']</td></tr>
+</table>
+<div class="notes"><span class="notes-h">设计陷阱</span><ul><li>3 轮变更：数量 400→500；交期 11-09→11-05→（分批）11-08+11-15；方案由车间→老板娘协商落定</li><li>履历应 ≥3 条；最新状态=数量500、分两批（11-08 出 300 / 11-15 出 200）</li><li>测试要点：查询'那单到哪了'必须返回最终方案，而非 400 个的旧版本</li></ul></div></div>
+  </div>
+</div>
+  <footer>红线说明：页面展示全部为团队自建模拟群聊数据，企业名已作化名处理，不涉及任何真实企业信息。<br>
+  右侧「预期效果」标注为模块二（抽取/校验）实现后的目标结果，供联调对照，非智能体实际输出。</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>瓯单通 · 参赛海报 A4</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Segoe UI", Arial, sans-serif;
+    background: #0a0f18;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* ===== A4 画布 ===== */
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 80% at 18% -5%, rgba(34,211,238,0.16) 0%, rgba(34,211,238,0) 45%),
+      radial-gradient(90% 60% at 105% 12%, rgba(59,130,246,0.18) 0%, rgba(59,130,246,0) 50%),
+      radial-gradient(80% 60% at 50% 115%, rgba(34,211,238,0.10) 0%, rgba(34,211,238,0) 55%),
+      linear-gradient(165deg, #050a14 0%, #071324 42%, #0a1c33 100%);
+    color: #eaf2fb;
+    padding: 12mm 11mm 9mm 11mm;
+    display: flex;
+    flex-direction: column;
+  }
+  /* 科技网格 */
+  .page::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(90,200,235,0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(90,200,235,0.055) 1px, transparent 1px);
+    background-size: 14mm 14mm;
+    -webkit-mask-image: radial-gradient(120% 100% at 50% 30%, #000 30%, transparent 78%);
+            mask-image: radial-gradient(120% 100% at 50% 30%, #000 30%, transparent 78%);
+    pointer-events: none;
+  }
+  .page > * { position: relative; z-index: 1; }
+
+  /* ===== 顶栏 ===== */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 4mm;
+    border-bottom: 1px solid rgba(94,234,212,0.18);
+  }
+  .brand { display: flex; align-items: center; gap: 3.2mm; }
+  .logo {
+    width: 9.5mm; height: 9.5mm;
+    border: 1.4px solid #22d3ee;
+    border-radius: 2.2mm;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 10px rgba(34,211,238,0.35), inset 0 0 8px rgba(34,211,238,0.18);
+    font-weight: 900; font-size: 12px; color: #7fe9ff; letter-spacing: 0.5px;
+  }
+  .brand-txt .l1 {
+    font-size: 12.5px; font-weight: 800; letter-spacing: 1.4px; color: #eaf2fb;
+  }
+  .brand-txt .l2 {
+    font-size: 9.5px; color: #8ba3bd; letter-spacing: 0.6px; margin-top: 1px;
+  }
+  .topbar .track {
+    font-size: 9.5px; font-weight: 700; color: #052a33;
+    background: linear-gradient(90deg,#5eead4,#22d3ee);
+    padding: 2.4mm 4mm; border-radius: 20px; letter-spacing: 0.5px;
+    box-shadow: 0 0 14px rgba(34,211,238,0.4);
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    padding: 6mm 0 4mm 0;
+    display: flex; flex-direction: column;
+  }
+  .hero .kicker {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 3px;
+    color: #5eead4; text-transform: uppercase; margin-bottom: 2.5mm;
+  }
+  .hero .title-row { display: flex; align-items: flex-end; gap: 6mm; }
+  .hero h1 {
+    font-size: 64px; font-weight: 900; line-height: 0.95;
+    letter-spacing: 4px; color: #ffffff;
+    text-shadow: 0 0 24px rgba(34,211,238,0.55), 0 0 6px rgba(34,211,238,0.35);
+  }
+  .hero .en {
+    font-size: 12.5px; font-weight: 700; letter-spacing: 5px;
+    color: #6f8aa6; margin-bottom: 3mm;
+  }
+  .hero .slogan {
+    margin-top: 3.5mm; font-size: 17.5px; font-weight: 700; color: #dbe9f6;
+    letter-spacing: 0.5px;
+  }
+  .hero .slogan b { color: #5eead4; }
+  .hero .chips { display: flex; gap: 2.8mm; margin-top: 3.5mm; }
+  .chip {
+    font-size: 10px; font-weight: 700; color: #bfe9f4;
+    border: 1px solid rgba(94,234,212,0.35);
+    background: rgba(34,211,238,0.07);
+    padding: 1.8mm 3.6mm; border-radius: 20px; letter-spacing: 0.4px;
+  }
+
+  /* ===== 区块标题 ===== */
+  .sec-head {
+    display: flex; align-items: baseline; gap: 3mm; margin-bottom: 4.2mm;
+  }
+  .sec-head .no {
+    font-size: 24px; font-weight: 900; color: #22d3ee;
+    text-shadow: 0 0 12px rgba(34,211,238,0.5); line-height: 1;
+  }
+  .sec-head .tt {
+    font-size: 16px; font-weight: 800; color: #eaf2fb; letter-spacing: 0.6px;
+  }
+  .sec-head .en2 {
+    font-size: 9px; font-weight: 700; letter-spacing: 2.5px;
+    color: #5b7692; text-transform: uppercase;
+  }
+
+  /* ===== 痛点 ===== */
+  .pain { margin-top: 3mm; }
+  .pain-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3.2mm;
+  }
+  .pain-card {
+    display: flex; gap: 3.2mm; align-items: flex-start;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,138,92,0.22);
+    border-left: 3px solid #ff8a5c;
+    border-radius: 2.4mm;
+    padding: 3.4mm 3.6mm;
+  }
+  .pain-card .ic {
+    flex: 0 0 auto; width: 7.4mm; height: 7.4mm; border-radius: 1.6mm;
+    background: rgba(255,138,92,0.14);
+    border: 1px solid rgba(255,138,92,0.45);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13.5px; font-weight: 900; color: #ffab7d;
+  }
+  .pain-card .tx .h {
+    font-size: 12.8px; font-weight: 800; color: #ffd7c4; margin-bottom: 1.4mm;
+    letter-spacing: 0.3px;
+  }
+  .pain-card .tx .d {
+    font-size: 10.8px; line-height: 1.55; color: #b7c7d8;
+  }
+
+  /* ===== 方案 ===== */
+  .sol { margin-top: 4.5mm; }
+  .flow {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.8mm;
+  }
+  .flow-card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(34,211,238,0.10), rgba(34,211,238,0.03));
+    border: 1px solid rgba(94,234,212,0.28);
+    border-radius: 2.6mm;
+    padding: 3.4mm 3.2mm 3mm 3.2mm;
+    box-shadow: 0 0 18px rgba(34,211,238,0.08);
+  }
+  .flow-card .step {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 1.5px; color: #5eead4;
+    margin-bottom: 2.2mm; display: flex; align-items: center; gap: 1.6mm;
+  }
+  .flow-card .step .dot {
+    width: 4.8mm; height: 4.8mm; border-radius: 50%;
+    background: linear-gradient(135deg,#5eead4,#22d3ee);
+    color: #04222b; font-size: 9px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 8px rgba(34,211,238,0.6);
+  }
+  .flow-card .fh {
+    font-size: 13px; font-weight: 800; color: #ffffff; margin-bottom: 2mm;
+  }
+  .flow-card .fd {
+    font-size: 10px; line-height: 1.58; color: #a9c0d6;
+  }
+  .arrow {
+    position: absolute; right: -2.4mm; top: 50%; transform: translateY(-50%);
+    color: #22d3ee; font-size: 12px; z-index: 2; opacity: 0.85;
+  }
+  .tech {
+    margin-top: 4mm;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 2.4mm;
+    font-size: 10px; color: #8fa9c2;
+  }
+  .tech .lab { color: #5eead4; font-weight: 800; letter-spacing: 0.5px; }
+  .tech .t {
+    border: 1px solid rgba(94,234,212,0.3); border-radius: 20px;
+    padding: 1.4mm 3.2mm; color: #c6e8f2; background: rgba(34,211,238,0.06);
+    font-weight: 600;
+  }
+
+  /* ===== 产品形态 ===== */
+  .demo { margin-top: 4.5mm; }
+  .demo-wrap { display: flex; gap: 3.2mm; align-items: stretch; }
+  .demo-card {
+    flex: 1;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(94,234,212,0.22);
+    border-radius: 2.6mm;
+    padding: 3.2mm 3.6mm;
+  }
+  .demo-card .dc-h {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 1.2px; color: #6f8aa6;
+    margin-bottom: 2.2mm;
+  }
+  .bubble {
+    background: rgba(34,211,238,0.10);
+    border: 1px solid rgba(94,234,212,0.22);
+    border-radius: 2mm 2mm 2mm 0.6mm;
+    padding: 2.2mm 3mm;
+    font-size: 10.3px; line-height: 1.5; color: #d7e7f3;
+    margin-bottom: 2.2mm;
+  }
+  .bubble .who { font-size: 9px; font-weight: 800; color: #5eead4; margin-bottom: 1mm; }
+  .bubble.alt { border-radius: 2mm 2mm 0.6mm 2mm; background: rgba(255,255,255,0.05); }
+  .bubble.alt .who { color: #9fc3e8; }
+  .mid {
+    flex: 0 0 21mm;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2mm;
+  }
+  .mid .ar { font-size: 21px; color: #22d3ee; text-shadow: 0 0 12px rgba(34,211,238,0.7); line-height: 1; }
+  .mid .mt { font-size: 9px; font-weight: 800; color: #5eead4; letter-spacing: 1px; }
+  .ledger .o-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.2mm; }
+  .ledger .oid { font-size: 11.5px; font-weight: 800; color: #eaf2fb; }
+  .badge {
+    font-size: 9px; font-weight: 800; color: #04222b;
+    background: linear-gradient(90deg, #5eead4, #22d3ee);
+    padding: 1.1mm 2.8mm; border-radius: 12px;
+  }
+  .ld-row { display: flex; font-size: 10.2px; line-height: 1.65; }
+  .ld-row .k { flex: 0 0 16mm; color: #6f8aa6; }
+  .ld-row .v { color: #dbe9f6; font-weight: 600; }
+  .ld-row .v .chg { color: #5eead4; font-weight: 800; }
+  .ld-hist {
+    margin-top: 2mm; padding-top: 1.6mm;
+    border-top: 1px dashed rgba(94,234,212,0.25);
+    font-size: 9px; color: #7e97b0; line-height: 1.5;
+  }
+  .ld-hist b { color: #5eead4; }
+
+  /* ===== 价值条 ===== */
+  .value {
+    margin-top: 4.5mm;
+    display: flex; align-items: center; gap: 3.2mm;
+    background: rgba(34,211,238,0.08);
+    border: 1px solid rgba(94,234,212,0.3);
+    border-radius: 2.4mm;
+    padding: 3.6mm 4.2mm;
+  }
+  .value .vk {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 1.5px; color: #5eead4;
+    flex: 0 0 auto;
+  }
+  .value .vt {
+    font-size: 12.5px; font-weight: 700; color: #eaf2fb; line-height: 1.45;
+  }
+  .value .vt b { color: #5eead4; }
+
+  /* ===== 底栏 ===== */
+  .footer {
+    margin-top: auto;
+    padding-top: 3.4mm;
+    border-top: 1px solid rgba(94,234,212,0.2);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .repo { display: flex; align-items: center; gap: 2.8mm; }
+  .repo .gi {
+    width: 7.4mm; height: 7.4mm; border-radius: 50%;
+    border: 1.2px solid #22d3ee; color: #7fe9ff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 900;
+    box-shadow: 0 0 10px rgba(34,211,238,0.3);
+  }
+  .repo .rt .k { font-size: 9px; color: #6f8aa6; letter-spacing: 1px; }
+  .repo .rt .v { font-size: 11.5px; font-weight: 700; color: #dbe9f6; }
+  .site { text-align: right; }
+  .site .k { font-size: 9px; color: #6f8aa6; letter-spacing: 1.5px; }
+  .site .v { font-size: 14.5px; font-weight: 800; color: #5eead4; letter-spacing: 0.6px; }
+</style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- 顶栏 -->
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">瓯</div>
+        <div class="brand-txt">
+          <div class="l1">2026 INTERCITY HACK · 温州站</div>
+          <div class="l2">瓯客松 · AI＋企业智能体赛道</div>
+        </div>
+      </div>
+      <div class="track">AI＋企业智能体赛道</div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="kicker">Order · Task · Coordination Agent</div>
+      <div class="title-row">
+        <h1>瓯单通</h1>
+        <div class="en">OU DAN TONG</div>
+      </div>
+      <div class="slogan">把散落在微信群里的<b>订单与任务</b>，自动变成实时、可查、可提醒的<b>协同台账</b></div>
+      <div class="chips">
+        <div class="chip">微信群聊接入</div>
+        <div class="chip">LLM 自动抽取</div>
+        <div class="chip">最新状态可查</div>
+        <div class="chip">变更自动留痕</div>
+      </div>
+    </div>
+
+    <!-- 痛点 -->
+    <div class="pain">
+      <div class="sec-head">
+        <div class="no">01</div>
+        <div class="tt">痛点 · 碎片化沟通让订单协同失效</div>
+        <div class="en2">Pain Points</div>
+      </div>
+      <div class="pain-grid">
+        <div class="pain-card">
+          <div class="ic">散</div>
+          <div class="tx">
+            <div class="h">信息散落，无人汇总</div>
+            <div class="d">订单和任务随聊随丢，散落在多个群，没有统一台账。</div>
+          </div>
+        </div>
+        <div class="pain-card">
+          <div class="ic">残</div>
+          <div class="tx">
+            <div class="h">口语残缺，难成结构</div>
+            <div class="d">表达非正式、多别称、信息不全，只能人工逐条翻记录。</div>
+          </div>
+        </div>
+        <div class="pain-card">
+          <div class="ic">变</div>
+          <div class="tx">
+            <div class="h">反复变更，状态失真</div>
+            <div class="d">同一事项多次交接迭代，谁也说不清哪个是最新版本。</div>
+          </div>
+        </div>
+        <div class="pain-card">
+          <div class="ic">问</div>
+          <div class="tx">
+            <div class="h">查询靠问，答不准</div>
+            <div class="d">一句「那单到哪了」，翻半天记录仍给不出准确进度。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 方案 -->
+    <div class="sol">
+      <div class="sec-head">
+        <div class="no">02</div>
+        <div class="tt">方案 · 从群聊到台账，一步到位</div>
+        <div class="en2">Solution</div>
+      </div>
+      <div class="flow">
+        <div class="flow-card">
+          <div class="step"><span class="dot">1</span>EXTRACT</div>
+          <div class="fh">自动抽取</div>
+          <div class="fd">从群聊识别客户、产品、数量、交期、任务，生成结构化订单与任务。</div>
+          <div class="arrow">→</div>
+        </div>
+        <div class="flow-card">
+          <div class="step"><span class="dot">2</span>TRACK</div>
+          <div class="fh">变更留痕</div>
+          <div class="fd">同一事项多轮变更自动记录，只维护当前最新状态与变更履历。</div>
+          <div class="arrow">→</div>
+        </div>
+        <div class="flow-card">
+          <div class="step"><span class="dot">3</span>QUERY</div>
+          <div class="fh">最新查询</div>
+          <div class="fd">一句话问「那单到哪了」，直接返回最新版本，而非过期旧信息。</div>
+          <div class="arrow">→</div>
+        </div>
+        <div class="flow-card">
+          <div class="step"><span class="dot">4</span>GUARD</div>
+          <div class="fh">异常把守</div>
+          <div class="fd">缺失信息追问、矛盾冲突标红、明显异常拦截，关键处不放过。</div>
+        </div>
+      </div>
+      <div class="tech">
+        <span class="lab">技术底座</span>
+        <span class="t">Python · 零依赖 Web 智能体</span>
+        <span class="t">DeepSeek LLM 抽取</span>
+        <span class="t">确定性规则校验</span>
+        <span class="t">可接真实群聊</span>
+      </div>
+    </div>
+
+    <!-- 产品形态 -->
+    <div class="demo">
+      <div class="sec-head">
+        <div class="no">03</div>
+        <div class="tt">产品形态 · 群聊一句话，台账全知道</div>
+        <div class="en2">Product Demo</div>
+      </div>
+      <div class="demo-wrap">
+        <div class="demo-card">
+          <div class="dc-h">微信群聊 · 模拟样例</div>
+          <div class="bubble">
+            <div class="who">王总（客户）</div>
+            法兰盘那个单子数量改一下，加到 300 件，交期赶周五
+          </div>
+          <div class="bubble alt">
+            <div class="who">陈工（车间）</div>
+            3 号机轴承那单先缓缓，下周再定，别排产
+          </div>
+        </div>
+        <div class="mid">
+          <div class="ar">→</div>
+          <div class="mt">自动抽取</div>
+          <div class="mt">变更留痕</div>
+        </div>
+        <div class="demo-card">
+          <div class="dc-h">瓯单通台账 · 自动生成</div>
+          <div class="ledger">
+            <div class="o-row">
+              <div class="oid">订单 O-20261020-07</div>
+              <div class="badge">在产</div>
+            </div>
+            <div class="ld-row"><div class="k">客 户</div><div class="v">永嘉××精密机械</div></div>
+            <div class="ld-row"><div class="k">产品/数量</div><div class="v">304 法兰盘 DN80 · <span class="chg">280 → 300 件</span></div></div>
+            <div class="ld-row"><div class="k">交 期</div><div class="v">10-24（周五）</div></div>
+            <div class="ld-hist">变更履历：<b>10-20 数量 280→300 · 交期提前</b>（来源：群聊原文）</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 价值条 -->
+    <div class="value">
+      <div class="vk">价值</div>
+      <div class="vt">不改习惯、<b>不依赖 ERP</b>——让中小制造 / 贸易企业用最熟悉的微信群，实现实时可靠的订单协同。</div>
+    </div>
+
+    <!-- 底栏 -->
+    <div class="footer">
+      <div class="repo">
+        <div class="gi">◇</div>
+        <div class="rt">
+          <div class="k">GITHUB REPOSITORY</div>
+          <div class="v">github.com/Ruan1027/ou-dan-tong</div>
+        </div>
+      </div>
+      <div class="site">
+        <div class="k">赛事官网</div>
+        <div class="v">okathon.cn</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

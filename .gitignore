@@ -13,3 +13,6 @@ __pycache__/
 # 系统垃圾
 .DS_Store
 Thumbs.db
+
+# 本地临时产物目录
+output/
