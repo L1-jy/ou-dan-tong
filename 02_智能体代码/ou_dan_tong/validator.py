@@ -1,10 +1,22 @@
-"""确定性校验 + 变更比对。"""
+"""确定性校验 + 变更比对。模块二·7/8/9（缺失/冲突/异常）。
+
+- validate_extraction：LLM 抽取结果的类型规整（保留，向下兼容）。
+- apply_change：仅覆盖本次有值字段，并记录变更履历（保留，向下兼容）。
+- classify_order：模块二核心。对一条抽取订单做 异常→冲突→缺失→正常 四级判定，
+  返回契约 4 的 ValidationResult {status, message, patch}。
+- 异常(abnormal)：负数数量 / 日期倒挂 / 格式错误 → 直接拦截，不写入。
+- 冲突(conflict)：与在途单数值矛盾且非显式「变更动词」→ 不覆盖，待人工确认。
+- 缺失(missing)：必填字段（数量/交期）为空 → 登记占位单，追问补全。
+"""
 import re
 import datetime
 
+from contracts import CheckStatus, ValidationResult
 from prompts import STATUS_RANK
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_CHANGE_VERB_SET = ("改", "变更为", "调成", "调到", "更新为", "变为", "改成", "调整到")
+_FIELD_CN = {"qty": "数量", "unit_price": "单价", "delivery_date": "交期", "status": "状态"}
 
 
 def _to_int(v):
@@ -19,6 +31,21 @@ def _meaningful(v):
     return s != "" and s != "待报价"
 
 
+def _parse_date(s):
+    try:
+        return datetime.date.fromisoformat(s)
+    except (ValueError, TypeError):
+        return None
+
+
+def _has_change_verb(text):
+    t = text or ""
+    return any(v in t for v in _CHANGE_VERB_SET)
+
+
+# ---------------------------------------------------------------------------
+# 向下兼容：LLM 抽取结果规整 + 变更比对
+# ---------------------------------------------------------------------------
 def validate_extraction(raw):
     """raw: LLM 返回的 list[dict]。返回 (orders, tasks, skipped)。"""
     orders, tasks, skipped = [], [], []
@@ -87,3 +114,92 @@ def apply_change(existing: dict, extracted: dict, now: str = None):
         }
         return patch, change
     return patch, None
+
+
+# ---------------------------------------------------------------------------
+# 模块二核心：缺失 / 冲突 / 异常 判定（契约 4）
+# ---------------------------------------------------------------------------
+def classify_order(o: dict, existing: dict = None, order_date: str = None) -> ValidationResult:
+    """对一条抽取订单做四级判定，返回 ValidationResult。
+
+    优先级：异常(abnormal) > 冲突(conflict) > 缺失(missing) > 正常(ok)。
+    order_date：下单日期(YYYY-MM-DD)，用于日期倒挂判定；不传则跳过该项。
+    """
+    customer = (o.get("customer") or "").strip()
+    product = (o.get("product") or "").strip()
+
+    # 0. 主键缺失：无法建单
+    if not customer or not product:
+        return ValidationResult(
+            CheckStatus.MISSING,
+            message=f"缺客户或产品名，无法建单，已跳过，请补充「{product or '产品'}」的归属客户。",
+            patch=None,
+        )
+
+    # 1. 异常拦截（最高优先级，直接 block，绝不写入）
+    qty = o.get("qty")
+    if qty is not None:
+        qi = _to_int(qty)
+        if qi is None:
+            return ValidationResult(
+                CheckStatus.ABNORMAL,
+                message=f"数量「{qty}」无法识别为整数，格式异常，已拦截未写入，请确认。",
+                patch=None,
+            )
+        if qi < 0:
+            return ValidationResult(
+                CheckStatus.ABNORMAL,
+                message=f"数量 {qty} 为负数，疑似笔误，已拦截未写入，请确认正确数量。",
+                patch=None,
+            )
+    dd = o.get("delivery_date")
+    if dd and not DATE_RE.match(str(dd)):
+        return ValidationResult(
+            CheckStatus.ABNORMAL,
+            message=f"交期「{dd}」格式异常（应为 YYYY-MM-DD），已拦截未写入，请确认。",
+            patch=None,
+        )
+    if dd and order_date:
+        pd, od = _parse_date(str(dd)), _parse_date(order_date)
+        if pd and od and pd < od:
+            return ValidationResult(
+                CheckStatus.ABNORMAL,
+                message=f"交期 {dd} 早于下单日 {order_date}，日期倒挂，已拦截未写入，请确认。",
+                patch=None,
+            )
+
+    # 2. 冲突检测（与在途单数值矛盾，且非显式「变更动词」→ 不覆盖，待确认）
+    if existing:
+        verb = _has_change_verb(o.get("source_excerpt", "") or o.get("raw", ""))
+        contradictions = []
+        for f in ("qty", "unit_price", "delivery_date", "status"):
+            ev = existing.get(f)
+            nv = o.get(f)
+            if _meaningful(ev) and _meaningful(nv) and str(ev) != str(nv) and not verb:
+                contradictions.append(f"{_FIELD_CN.get(f, f)}：台账 {ev} ↔ 来单 {nv}")
+        if contradictions:
+            return ValidationResult(
+                CheckStatus.CONFLICT,
+                message="检测到与在途单数值矛盾（" + "；".join(contradictions)
+                        + "），未自动覆盖，请人工确认以哪份为准。",
+                patch=None,
+            )
+
+    # 3. 缺失信息：仅当【新建订单】(无在途单) 才算缺失；更新场景缺字段只表示"该项不变更"。
+    if existing is None:
+        miss = []
+        if not _meaningful(o.get("qty")):
+            miss.append("数量")
+        if not _meaningful(o.get("delivery_date")):
+            miss.append("交期")
+        if miss:
+            return ValidationResult(
+                CheckStatus.MISSING,
+                message="信息不全，已登记占位待补：" + "、".join(miss) + "缺失，请补充后我再正式建单。",
+                patch=None,
+            )
+
+    # 4. 正常：可写入。patch 取本次有意义的新值（缺字段视为"不变更"，不报错）。
+    patch = {f: o[f] for f in ("spec", "qty", "unit_price", "delivery_date", "sample_flag", "status")
+             if f in o and _meaningful(o.get(f))}
+    return ValidationResult(CheckStatus.OK, message="", patch=patch)

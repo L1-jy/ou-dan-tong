@@ -8,6 +8,7 @@
 ```
 ou_dan_tong/
   config.py         模型/运行配置（Key 走环境变量）
+  contracts.py      契约单一真相源（契约1/2/3/4：Message/ChangeSegment/订单·任务/ValidationResult）
   llm.py            极简 OpenAI 兼容调用（零依赖）
   prompts.py        提示词骨架 + 卡片/查询/简报文案
   store.py          本地 JSON 存储（订单/任务台账）
@@ -52,7 +53,34 @@ python web_app.py         # 此时为真实模式，可抽取任意群聊
 - 变更捕获：同 客户+产品 在途单 → UPDATE 并追加 `changes` 履历，状态只进不退。
 - 缺失跳过：缺客户/产品的 order 行丢弃并提示人工确认。
 
+## 模块二 · 变更识别与记录（核心设计 / 工作流程 / 实现方式）
+
+> 归属：队友A。对应 `contracts.py` + `validator.py` + `prompts.py`。评委点名的「缺失/冲突/异常」三难
+> 点即落在此模块，输出契约 4 的 `ValidationResult {status, message, patch}`。
+
+**核心设计**
+- 单一真相源 `contracts.py`：冻结契约 1（聊天输入）、契约 2（变更片段）、契约 3（订单/任务记录）、
+  契约 4（校验结果）。全员 `import`，改字段须走 PR 且向后兼容。
+  （注：契约模块本名 `types.py`，因与 Python 标准库 `types` 同名冲突、无法被本地覆盖，重命名为
+  `contracts.py`，功能不变，已在《接口与模块对接约定》备案。）
+- 判定优先级：**异常(abnormal) → 冲突(conflict) → 缺失(missing) → 正常(ok)**，四级短路。
+
+**工作流程**（`agent.parse_chat` 编排）
+1. `extractor` 把群聊抽成订单/任务行 → `validator.validate_extraction` 做类型规整。
+2. 对每条订单调用 `validator.classify_order(o, existing, order_date)` 做四级判定：
+   - 异常：数量负数/交期格式错/交期早于下单日 → **直接拦截，不写入**，卡片 red 提示。
+   - 冲突：与在途单同字段数值矛盾、且来单**无变更动词**（改/变更为…）→ **不覆盖**，标记 `flags.conflict` 待人工确认。
+   - 缺失：新建订单缺数量/交期 → **登记占位单**（状态「待补充」）+ 追问话术，台账可见。
+   - 正常：带变更动词的更新 / 无矛盾的新建 → `apply_change` 落库并留痕。
+3. 异常/冲突/缺失均以卡片话术 + 台账 `flags` 双重呈现，演示时评委一眼可见。
+
+**实现方式**
+- `validator.classify_order` 纯函数、零依赖、可单测，不依赖 LLM；`change_verb` 由
+  `source_excerpt` 是否含「改/变更为/调成…」判定，以此区分「正常更新」与「矛盾断言」。
+- 自测：`python test_validator.py` —— 单元级断言五类陷阱判定正确，并端到端演示一段含陷阱群聊；
+  另需 `python test_pipeline.py` 保证全链路无回归。
+
 ## 下一步
-1. 让队友 A 用 `sim_chats.py` 模板扩充 5-8 组带陷阱的演示数据（模块一·模拟数据构建）。
+1. 模块三（状态维护·队友D）/ 模块四（查询应答·队友C）基于 `contracts.py` 契约并行接入。
 2. 真实跑通后用 `runtime/orders.json` 截图作为「真台账」证据。
 3. 演示录屏 + 数据 JSON 备份，防现场翻车。

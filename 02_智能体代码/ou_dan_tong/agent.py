@@ -4,7 +4,8 @@ import datetime
 from llm import LLM
 from prompts import card_text, query_text, briefing_text
 from store import Store
-from validator import validate_extraction, apply_change
+from validator import validate_extraction, apply_change, classify_order
+from contracts import CheckStatus
 from extractor import extract
 
 
@@ -12,14 +13,42 @@ def parse_chat(chat_text, store: Store, llm: LLM = None, mock=None, now: str = N
     raw = extract(chat_text, llm, mock)
     orders, tasks, skipped = validate_extraction(raw)
     out = []
+    cards = []
     now = now or datetime.datetime.now().isoformat(timespec="seconds")
     date = now[:10].replace("-", "")
+    order_date = now[:10]
     for o in orders:
         existing = store.find_active(o["customer"], o["product"])
-        if existing:
+        # —— 模块二核心：缺失 / 冲突 / 异常 四级判定 ——
+        res = classify_order(o, existing, order_date=order_date)
+        if res.status == CheckStatus.ABNORMAL:
+            cards.append("⛔ 异常拦截：" + res.message)
+            continue
+        if res.status == CheckStatus.CONFLICT:
+            if existing is not None:
+                existing.setdefault("flags", {})["conflict"] = res.message
+                store.update_order(existing["order_id"], {}, None)
+            cards.append("⚠️ 冲突待确认：" + res.message)
+            continue
+        if res.status == CheckStatus.MISSING:
+            # 登记占位单，状态「待补充」，便于台账可见，待补全后正式建单
+            o["order_id"] = store.next_order_id(date)
+            o["status"] = "待补充"
+            o.setdefault("flags", {})["missing"] = res.message
+            o["created_at"] = now
+            o["updated_at"] = now
+            store.add_order(o)
+            cards.append("🟡 信息不全已占位：" + res.message)
+            continue
+        # —— 正常（ok）：新建 或 主动更新 ——
+        if existing is not None:
             patch, change = apply_change(existing, o, now=now)
             if patch:
                 store.update_order(existing["order_id"], patch, change)
+                if "flags" in existing and existing["flags"]:
+                    existing["flags"].pop("conflict", None)
+                    existing["flags"].pop("missing", None)
+                    store.update_order(existing["order_id"], {}, None)
             out.append(("update", existing))
         else:
             o["order_id"] = store.next_order_id(date)
@@ -35,7 +64,6 @@ def parse_chat(chat_text, store: Store, llm: LLM = None, mock=None, now: str = N
         store.add_task(t)
         new_tasks.append(t)
     first_new = next((i for i, (k, _) in enumerate(out) if k == "new"), None)
-    cards = []
     for i, (kind, rec) in enumerate(out):
         show_tasks = new_tasks if i == first_new else []
         cards.append(card_text(rec, show_tasks, kind == "new"))
