@@ -1,0 +1,15 @@
+# Python 字节码 / 缓存
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# 运行时可变状态：由程序自动生成，提交会引发队友推送冲突，勿入库
+02_智能体代码/ou_dan_tong/runtime/*.json
+
+# 本地项目记忆与配置：属个人工作区，不进共享仓库
+.workbuddy/
+
+# 系统垃圾
+.DS_Store
+Thumbs.db

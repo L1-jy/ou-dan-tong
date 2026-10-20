@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>瓯单通 · 订单协同智能体</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg:#f4f6fb; --card:#fff; --brand:#2563eb; --brand2:#1e40af;
+          --ok:#16a34a; --warn:#dc2626; --muted:#64748b; --line:#e5e7eb; }
+  body { font-family: -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+         background: var(--bg); color:#0f172a; height:100vh; display:flex; flex-direction:column; }
+  header { background: linear-gradient(135deg,var(--brand),var(--brand2)); color:#fff;
+           padding:14px 18px; display:flex; align-items:center; gap:12px; }
+  header .logo { font-size:22px; font-weight:800; letter-spacing:1px; }
+  header .tag { font-size:12px; opacity:.9; }
+  header .mode { margin-left:auto; font-size:12px; background:rgba(255,255,255,.18);
+                padding:4px 10px; border-radius:999px; }
+  .wrap { flex:1; display:flex; gap:14px; padding:14px; overflow:hidden; }
+  .left { flex:1; display:flex; flex-direction:column; min-width:0; }
+  .chat { flex:1; background:var(--card); border-radius:14px; padding:16px; overflow-y:auto;
+          border:1px solid var(--line); }
+  .msg { max-width:88%; margin-bottom:12px; padding:10px 13px; border-radius:12px; line-height:1.55;
+         white-space:pre-wrap; word-break:break-word; font-size:14px; }
+  .msg.user { background:var(--brand); color:#fff; margin-left:auto; border-bottom-right-radius:3px; }
+  .msg.bot  { background:#eef2ff; color:#0f172a; border-bottom-left-radius:3px; }
+  .msg.bot .mode-tag { display:inline-block; font-size:11px; color:var(--brand2); font-weight:700;
+                      margin-bottom:4px; }
+  .inputbar { display:flex; gap:8px; margin-top:12px; }
+  textarea { flex:1; resize:none; height:46px; border:1px solid var(--line); border-radius:10px;
+             padding:10px 12px; font-size:14px; font-family:inherit; }
+  button { border:none; border-radius:10px; padding:0 18px; font-size:14px; font-weight:600;
+           cursor:pointer; }
+  .send { background:var(--brand); color:#fff; }
+  .reset { background:#fee2e2; color:var(--warn); }
+  .right { width:340px; display:flex; flex-direction:column; gap:14px; overflow-y:auto; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
+  .panel h3 { font-size:14px; margin-bottom:10px; color:var(--brand2); }
+  .panel h3 small { color:var(--muted); font-weight:400; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th,td { text-align:left; padding:6px 4px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .chip { background:#e0e7ff; color:var(--brand2); border:1px solid #c7d2fe; border-radius:999px;
+          padding:6px 12px; font-size:12.5px; cursor:pointer; }
+  .chip:hover { background:#c7d2fe; }
+  .empty { color:var(--muted); font-size:12.5px; }
+  .badge { display:inline-block; font-size:11px; padding:1px 7px; border-radius:999px; }
+  .b-沟通中{background:#fef9c3;color:#854d0e;} .b-已报价{background:#dbeafe;color:#1e40af;}
+  .b-已确认{background:#ede9fe;color:#5b21b6;} .b-生产中{background:#dcfce7;color:#166534;}
+  .b-已交付{background:#e2e8f0;color:#475569;}
+  @media (max-width:760px){ .right{ display:none; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="logo">瓯单通</div>
+    <div class="tag">温州中小企业 · 订单协同智能体</div>
+  </div>
+  <div class="mode" id="modeBadge">加载中…</div>
+</header>
+
+<div class="wrap">
+  <div class="left">
+    <div class="chips" id="chips"></div>
+    <div class="chat" id="chat"></div>
+    <div class="inputbar">
+      <textarea id="input" placeholder="粘贴业务群聊，或输入「万博那单到哪了」「出今日简报」…"></textarea>
+      <button class="send" onclick="send()">发送</button>
+      <button class="reset" onclick="resetLedger()">重置台账</button>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="panel">
+      <h3>📦 订单台账 <small id="orderCount"></small></h3>
+      <div id="orderTable"></div>
+    </div>
+    <div class="panel">
+      <h3>✅ 任务台账 <small id="taskCount"></small></h3>
+      <div id="taskTable"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const EXAMPLES = [
+  { label:"📋 粘贴示例群聊", text:"王工：李经理，NMX-60 断路器外壳 5000 个，什么时候能给报个价？客户挺急的\n李经理：稍等，我算一下，明天上午给你\n（第二天）\n李经理：王工，NMX-60 外壳 5000 个，单价 3.2，11 月 20 号交，含 13% 税\n王工：行，先安排打样 20 个发过来确认" },
+  { label:"🔍 万博那单到哪了", text:"万博那单到哪了？" },
+  { label:"✏️ 客户改数量", text:"王工：李经理，NMX-60 那批数量改一下，改成 6000 个" },
+  { label:"📊 出今日简报", text:"出今日简报" },
+];
+
+function el(id){ return document.getElementById(id); }
+
+function renderChips(){
+  const c = el("chips");
+  EXAMPLES.forEach(e=>{
+    const s = document.createElement("span");
+    s.className="chip"; s.textContent=e.label;
+    s.onclick=()=>{ el("input").value=e.text; send(); };
+    c.appendChild(s);
+  });
+}
+
+function addMsg(role, text, mode){
+  const d = document.createElement("div");
+  d.className = "msg " + (role==="user"?"user":"bot");
+  if(role==="bot" && mode){
+    const t=document.createElement("div"); t.className="mode-tag";
+    t.textContent = {parse:"📦 提取入库",query:"🔍 订单查询",briefing:"📊 今日简报",hint:"💡 提示"}[mode]||"";
+    d.appendChild(t);
+  }
+  d.appendChild(document.createTextNode(text));
+  el("chat").appendChild(d);
+  el("chat").scrollTop = el("chat").scrollHeight;
+}
+
+function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+function renderLedger(L){
+  const orders = L.orders||[], tasks = L.tasks||[];
+  el("modeBadge").textContent = L.mode;
+  el("orderCount").textContent = "（"+orders.length+" 笔）";
+  el("taskCount").textContent = "（"+tasks.length+" 项）";
+  el("orderTable").innerHTML = orders.length ? (
+    "<table><tr><th>单号</th><th>客户</th><th>产品</th><th>数量</th><th>交期</th><th>状态</th></tr>" +
+    orders.map(o=>`<tr><td>${esc(o.order_id)}</td><td>${esc(o.customer)}</td><td>${esc(o.product)}</td>`+
+      `<td>${esc(o.qty)}</td><td>${esc(o.delivery_date||"—")}</td>`+
+      `<td><span class="badge b-${esc(o.status)}">${esc(o.status)}</span></td></tr>`).join("") + "</table>"
+  ) : '<div class="empty">暂无订单，粘贴群聊试试。</div>';
+  el("taskTable").innerHTML = tasks.length ? (
+    "<table><tr><th>事项</th><th>责任人</th><th>期限</th><th>状态</th></tr>" +
+    tasks.map(t=>`<tr><td>${esc(t.content)}</td><td>${esc(t.owner||"待认领")}</td>`+
+      `<td>${esc(t.deadline||"待定")}</td><td>${esc(t.status)}</td></tr>`).join("") + "</table>"
+  ) : '<div class="empty">暂无任务。</div>';
+}
+
+async function send(){
+  const inp = el("input");
+  const text = inp.value.trim();
+  if(!text) return;
+  addMsg("user", text);
+  inp.value = "";
+  const r = await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({message:text})});
+  const data = await r.json();
+  addMsg("bot", data.reply||"（无回复）", data.mode);
+  if(data.ledger) renderLedger(data.ledger);
+}
+
+async function resetLedger(){
+  await fetch("/api/reset",{method:"POST"});
+  el("chat").innerHTML="";
+  addMsg("bot","台账已清空，可重新粘贴群聊。","hint");
+  renderLedger(await (await fetch("/api/ledger")).json());
+}
+
+async function init(){
+  renderChips();
+  const L = await (await fetch("/api/ledger")).json();
+  renderLedger(L);
+  addMsg("bot","我是瓯单通，你的订单协同助手。把业务群聊直接粘贴给我，我帮你：\n📦 提取订单入台账 ｜ 🔍 随口查单进度 ｜ ✏️ 识别客户变更 ｜ 📊 出今日简报","hint");
+}
+init();
+</script>
+</body>
+</html>
